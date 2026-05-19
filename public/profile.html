@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Minesweeper — Profile</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="theme.js"></script>
+  <style>
+    .profile-wrap { max-width: 800px; margin: 0 auto; padding: 28px 20px; }
+
+    /* ── Header ── */
+    .top-bar { display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; flex-wrap:wrap; gap:10px; }
+    .top-bar h1 { font-size:18px; font-weight:600; color:var(--text); font-family:var(--mono); }
+    .top-nav { display:flex; gap:8px; align-items:center; }
+    .nav-pill { padding:5px 13px; border:1px solid var(--border); border-radius:20px; background:var(--surface); color:var(--text2); font-size:12px; text-decoration:none; transition:all .15s; font-family:var(--sans); cursor:pointer; }
+    .nav-pill:hover { border-color:var(--accent); color:var(--accent); }
+
+    /* ── Search bar ── */
+    .search-wrap { display:flex; gap:10px; margin-bottom:24px; }
+    .search-input {
+      flex:1; padding:10px 16px; background:var(--surface); border:1px solid var(--border);
+      border-radius:8px; color:var(--text); font-size:14px; font-family:var(--sans); outline:none;
+      transition:border-color .15s;
+    }
+    .search-input:focus { border-color:var(--accent); }
+    .search-input::placeholder { color:var(--text3); }
+    .search-btn {
+      padding:10px 20px; background:var(--accent); border:none; border-radius:8px;
+      color:white; font-size:14px; font-weight:600; cursor:pointer; font-family:var(--sans);
+      transition:opacity .15s;
+    }
+    .search-btn:hover { opacity:.85; }
+
+    /* ── Profile card ── */
+    .profile-card {
+      background:var(--surface); border:1px solid var(--border); border-radius:14px;
+      padding:24px; margin-bottom:20px; display:flex; align-items:center; gap:20px;
+    }
+    .avatar-wrap { position:relative; flex-shrink:0; }
+    .avatar {
+      width:72px; height:72px; border-radius:50%; background:var(--accent);
+      display:flex; align-items:center; justify-content:center;
+      font-size:28px; font-weight:700; color:white; font-family:var(--mono);
+    }
+    .avatar-ring { position:absolute; inset:-3px; border-radius:50%; border:2px solid var(--accent); opacity:.4; }
+    .profile-info { flex:1; min-width:0; }
+    .profile-name { font-size:22px; font-weight:700; color:var(--text); margin-bottom:3px; }
+    .profile-meta { font-size:12px; color:var(--text2); display:flex; gap:14px; flex-wrap:wrap; }
+    .meta-item { display:flex; align-items:center; gap:4px; }
+    .profile-badges-preview { display:flex; gap:6px; margin-top:10px; flex-wrap:wrap; }
+    .badge-pill {
+      padding:3px 10px; border-radius:10px; font-size:11px;
+      background:var(--surface2); color:var(--text2); border:1px solid var(--border);
+    }
+    .badge-pill.earned { background:rgba(74,222,128,.1); color:var(--win); border-color:rgba(74,222,128,.2); }
+
+    /* ── Stats grid ── */
+    .stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:20px; }
+    .stat-box { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px; text-align:center; }
+    .stat-box .val { font-size:24px; font-weight:700; font-family:var(--mono); color:var(--accent); line-height:1; }
+    .stat-box .lbl { font-size:10px; color:var(--text3); margin-top:4px; text-transform:uppercase; letter-spacing:.05em; }
+    .stat-box.s-win  .val { color:var(--win); }
+    .stat-box.s-lose .val { color:var(--lose); }
+    .stat-box.s-rate .val { color:var(--accent2); }
+
+    /* ── Difficulty breakdown ── */
+    .diff-row {
+      display:flex; align-items:center; gap:12px; padding:12px 16px;
+      background:var(--surface); border:1px solid var(--border); border-radius:10px;
+      margin-bottom:10px;
+    }
+    .diff-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+    .dot-easy   { background:var(--win); }
+    .dot-medium { background:#fb923c; }
+    .dot-hard   { background:var(--lose); }
+    .diff-name { font-size:13px; font-weight:600; color:var(--text); min-width:80px; }
+    .diff-bar-wrap { flex:1; background:var(--surface2); border-radius:4px; height:6px; overflow:hidden; }
+    .diff-bar-fill { height:100%; border-radius:4px; transition:width .6s ease; }
+    .fill-easy   { background:var(--win); }
+    .fill-medium { background:#fb923c; }
+    .fill-hard   { background:var(--lose); }
+    .diff-stats { display:flex; gap:16px; font-size:12px; color:var(--text2); min-width:160px; }
+    .diff-stats .wins  { color:var(--win); font-family:var(--mono); font-weight:600; }
+    .diff-stats .best  { color:var(--accent); font-family:var(--mono); }
+    .diff-stats .nodata { color:var(--text3); font-style:italic; }
+
+    /* ── Section title ── */
+    .sec-title { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.08em; color:var(--text3); margin-bottom:12px; }
+
+    /* ── Badge grid ── */
+    .badge-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(185px,1fr)); gap:8px; margin-bottom:24px; }
+    .badge-card {
+      background:var(--surface); border:1px solid var(--border); border-radius:10px;
+      padding:12px 14px; display:flex; align-items:center; gap:10px; transition:all .15s;
+    }
+    .badge-card.earned { border-color:#2a4a2a; }
+    .badge-card.locked { opacity:.3; filter:grayscale(.9); }
+    .badge-icon { font-size:24px; line-height:1; flex-shrink:0; }
+    .badge-name { font-size:12px; font-weight:600; color:var(--text); margin-bottom:2px; }
+    .badge-desc { font-size:10px; color:var(--text2); line-height:1.3; }
+    .badge-date { font-size:10px; color:var(--win); margin-top:3px; font-family:var(--mono); }
+
+    /* ── History ── */
+    .history-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; overflow:hidden; margin-bottom:24px; }
+    .history-row { display:flex; align-items:center; padding:9px 16px; border-bottom:1px solid var(--surface2); gap:10px; font-size:12px; }
+    .history-row:last-child { border-bottom:none; }
+    .result-pill { padding:2px 9px; border-radius:10px; font-size:10px; font-weight:600; min-width:44px; text-align:center; }
+    .p-won  { background:rgba(74,222,128,.1);  color:var(--win); }
+    .p-lost { background:rgba(248,113,113,.1); color:var(--lose); }
+    .h-diff { color:var(--text2); flex:1; }
+    .h-time { color:var(--accent); font-family:var(--mono); font-weight:600; min-width:36px; text-align:right; }
+    .h-date { color:var(--text3); font-size:11px; min-width:78px; text-align:right; }
+
+    /* ── States ── */
+    .state-box { text-align:center; padding:48px 20px; color:var(--text3); font-size:14px; }
+    .state-box .state-icon { font-size:40px; margin-bottom:12px; }
+    .loading-spin {
+      width:32px; height:32px; border:2px solid var(--border);
+      border-top-color:var(--accent); border-radius:50%;
+      animation:spin .7s linear infinite; margin:40px auto;
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    @media(max-width:600px) {
+      .stats-grid { grid-template-columns:repeat(2,1fr); }
+      .diff-stats { display:none; }
+      .profile-card { flex-direction:column; align-items:flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="profile-wrap">
+
+  <!-- Top bar -->
+  <div class="top-bar">
+    <h1>👤 Profile</h1>
+    <div class="top-nav">
+      <a href="index.html"       class="nav-pill">🎮 Game</a>
+      <a href="leaderboard.html" class="nav-pill">🏆 Xếp hạng</a>
+      <a href="stats.html"       class="nav-pill">📊 Thống kê</a>
+      <a href="#" class="nav-pill" id="logout-btn">Đăng xuất</a>
+      <span id="theme-wrap"></span>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="search-wrap">
+    <input class="search-input" id="search-input" type="text"
+           placeholder="Nhập username để tìm profile..." />
+    <button class="search-btn" onclick="searchProfile()">Tìm</button>
+  </div>
+
+  <!-- Nội dung profile -->
+  <div id="profile-content">
+    <div class="state-box">
+      <div class="state-icon">🔍</div>
+      <p>Nhập username ở trên hoặc đang tải profile của bạn...</p>
+    </div>
+  </div>
+
+</div>
+
+<script src="config.js"></script>
+<script>
+// API được khai báo trong config.js
+const token = localStorage.getItem('token');
+const me    = JSON.parse(localStorage.getItem('user') || 'null');
+
+if (!token || !me) window.location.href = 'auth.html';
+
+document.getElementById('logout-btn').addEventListener('click', () => {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  window.location.href = 'auth.html';
+});
+
+createThemeToggle(document.getElementById('theme-wrap'));
+
+// Cho phép nhấn Enter trong search box
+document.getElementById('search-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') searchProfile();
+});
+
+// ── Tìm profile theo username ──
+async function searchProfile() {
+  const val = document.getElementById('search-input').value.trim();
+  if (!val) return;
+  loadProfile(val);
+}
+
+// ── Tải profile theo username hoặc 'me' ──
+async function loadProfile(username) {
+  showLoading();
+
+  try {
+    const url = username === 'me'
+      ? `${API}/profile/me/summary`
+      : `${API}/profile/${encodeURIComponent(username)}`;
+
+    const headers = {};
+    if (username === 'me') headers['Authorization'] = `Bearer ${token}`;
+
+    const res  = await fetch(url, { headers });
+    const data = await res.json();
+
+    if (!res.ok) {
+      showError(data.error || 'Không tìm thấy người dùng');
+      return;
+    }
+
+    renderProfile(data);
+  } catch {
+    showError('Không kết nối được server. Kiểm tra backend đã chạy chưa.');
+  }
+}
+
+// ── Render toàn bộ profile ──
+function renderProfile(data) {
+  const { user, stats, badges, recentGames } = data;
+  const initial  = user.username.charAt(0).toUpperCase();
+  const joined   = new Date(user.memberSince).toLocaleDateString('vi-VN', { year:'numeric', month:'long' });
+  const isMe     = me && me.username.toLowerCase() === user.username.toLowerCase();
+
+  // Top 3 huy hiệu đã đạt để hiển thị trên card
+  const earnedBadges = badges.list.filter(b => b.earned).slice(0, 5);
+
+  document.getElementById('profile-content').innerHTML = `
+
+    <!-- Profile card -->
+    <div class="profile-card">
+      <div class="avatar-wrap">
+        <div class="avatar">${initial}</div>
+        <div class="avatar-ring"></div>
+      </div>
+      <div class="profile-info">
+        <div class="profile-name">${esc(user.username)} ${isMe ? '<span style="font-size:13px;color:var(--text2);font-weight:400">(bạn)</span>' : ''}</div>
+        <div class="profile-meta">
+          <span class="meta-item">📅 Tham gia ${joined}</span>
+          <span class="meta-item">🎮 ${stats.totalGames} ván</span>
+          <span class="meta-item">🏅 ${badges.earned}/${badges.total} huy hiệu</span>
+          ${user.rank && stats.totalWins > 0 ? `<span class="meta-item">🏆 Hạng #${user.rank} (dễ)</span>` : ''}
+        </div>
+        <div class="profile-badges-preview">
+          ${earnedBadges.length
+            ? earnedBadges.map(b => `<span class="badge-pill earned">${b.icon} ${b.name}</span>`).join('')
+            : '<span class="badge-pill">Chưa có huy hiệu</span>'
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Tổng quan -->
+    <div class="stats-grid" style="margin-bottom:20px">
+      <div class="stat-box">
+        <div class="val">${stats.totalGames}</div>
+        <div class="lbl">Tổng ván</div>
+      </div>
+      <div class="stat-box s-win">
+        <div class="val">${stats.totalWins}</div>
+        <div class="lbl">Thắng</div>
+      </div>
+      <div class="stat-box s-lose">
+        <div class="val">${stats.totalLosses}</div>
+        <div class="lbl">Thua</div>
+      </div>
+      <div class="stat-box s-rate">
+        <div class="val">${stats.winRate}%</div>
+        <div class="lbl">Tỉ lệ thắng</div>
+      </div>
+    </div>
+
+    <!-- Breakdown theo độ khó -->
+    <div class="sec-title" style="margin-bottom:12px">Kết quả theo độ khó</div>
+    ${renderDiffRow('easy',   'Dễ',  stats.winsEasy,   stats.bestEasy,   stats.totalWins)}
+    ${renderDiffRow('medium', 'Vừa', stats.winsMedium, stats.bestMedium, stats.totalWins)}
+    ${renderDiffRow('hard',   'Khó', stats.winsHard,   stats.bestHard,   stats.totalWins)}
+
+    <!-- Huy hiệu -->
+    <div class="sec-title" style="margin:20px 0 12px">Huy hiệu (${badges.earned}/${badges.total})</div>
+    <div class="badge-grid" style="margin-bottom:24px">
+      ${badges.list.map(b => `
+        <div class="badge-card ${b.earned ? 'earned' : 'locked'}"
+             style="${b.earned ? `background:${b.color};border-color:#2a4a2a` : ''}">
+          <div class="badge-icon">${b.icon}</div>
+          <div>
+            <div class="badge-name">${esc(b.name)}</div>
+            <div class="badge-desc">${esc(b.desc)}</div>
+            ${b.earned && b.earnedAt
+              ? `<div class="badge-date">✓ ${new Date(b.earnedAt).toLocaleDateString('vi-VN')}</div>`
+              : ''}
+          </div>
+        </div>`).join('')}
+    </div>
+
+    <!-- Lịch sử gần nhất -->
+    <div class="sec-title" style="margin-bottom:12px">10 ván gần nhất</div>
+    <div class="history-card">
+      ${renderHistory(recentGames)}
+    </div>
+  `;
+}
+
+// ── Render 1 dòng độ khó ──
+function renderDiffRow(key, label, wins, bestTime, totalWins) {
+  const pct  = totalWins > 0 ? Math.round((wins / Math.max(totalWins, 1)) * 100) : 0;
+  const best = bestTime ? `${bestTime}s` : '—';
+  return `
+    <div class="diff-row">
+      <div class="diff-dot dot-${key}"></div>
+      <div class="diff-name">${label}</div>
+      <div class="diff-bar-wrap">
+        <div class="diff-bar-fill fill-${key}" style="width:${pct}%"></div>
+      </div>
+      <div class="diff-stats">
+        <span>${wins > 0 ? `<span class="wins">${wins}</span> thắng` : '<span class="nodata">Chưa thắng</span>'}</span>
+        <span>Best: <span class="best">${best}</span></span>
+      </div>
+    </div>`;
+}
+
+// ── Render lịch sử ──
+function renderHistory(games) {
+  if (!games || games.length === 0)
+    return '<div style="text-align:center;padding:24px;color:var(--text3);font-size:13px">Chưa có ván nào</div>';
+
+  const DIFF = { easy:'🟢 Dễ', medium:'🟡 Vừa', hard:'🔴 Khó' };
+  return games.map(g => {
+    const isWon = g.result === 'won';
+    return `
+      <div class="history-row">
+        <span class="result-pill ${isWon ? 'p-won':'p-lost'}">${isWon ? 'Thắng':'Thua'}</span>
+        <span class="h-diff">${DIFF[g.difficulty]}</span>
+        <span class="h-time">${isWon ? g.time_seconds+'s' : '—'}</span>
+        <span class="h-date">${new Date(g.created_at).toLocaleDateString('vi-VN')}</span>
+      </div>`;
+  }).join('');
+}
+
+// ── States ──
+function showLoading() {
+  document.getElementById('profile-content').innerHTML =
+    '<div class="loading-spin"></div>';
+}
+
+function showError(msg) {
+  document.getElementById('profile-content').innerHTML = `
+    <div class="state-box">
+      <div class="state-icon">😕</div>
+      <p>${esc(msg)}</p>
+      <button class="nav-pill" style="margin-top:12px" onclick="loadProfile('me')">
+        Xem profile của tôi
+      </button>
+    </div>`;
+}
+
+function esc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── Khởi chạy: load profile của mình trước ──
+// Kiểm tra URL có ?user= không
+const urlParams = new URLSearchParams(window.location.search);
+const urlUser   = urlParams.get('user');
+
+if (urlUser) {
+  document.getElementById('search-input').value = urlUser;
+  loadProfile(urlUser);
+} else {
+  loadProfile('me');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Minesweeper</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Chạy trước để tránh flash trắng khi load trang -->
+  <script src="theme.js"></script>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<header class="header">
+  <a class="logo" href="index.html">
+    <div class="logo-icon">💣</div>
+    Minesweeper
+  </a>
+  <div class="header-space"></div>
+  <div class="header-user" id="header-user"></div>
+  <!-- Nút toggle theme được tạo bởi JS -->
+  <div id="theme-btn-wrap"></div>
+</header>
+
+<div class="layout">
+
+  <!-- ══ SIDEBAR ══ -->
+  <nav class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Chơi game</div>
+      <a class="sidebar-link active" href="index.html">💣 Chế độ tiêu chuẩn</a>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Cộng đồng</div>
+      <a class="sidebar-link" href="leaderboard.html">🏆 Xếp hạng</a>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Cá nhân</div>
+      <a class="sidebar-link" href="stats.html">📊 Thống kê của tôi</a>
+      <a class="sidebar-link" href="profile.html">👤 Profile của tôi</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Lab thực hành</div>
+      <a class="sidebar-link" href="lab_thuchanh.html">📖 Lab thực hành</a>
+      <button class="sidebar-link danger" onclick="logout()">⬡ Đăng xuất</button>
+    </div>
+  </nav>
+
+  <!-- ══ MAIN ══ -->
+  <main class="main">
+
+    <!-- Chọn độ khó dạng card -->
+    <div class="page-title">Bắt đầu ván mới</div>
+    <div class="diff-cards">
+
+      <div class="diff-card active" id="card-easy" onclick="setDifficulty('easy', this)">
+        <div class="diff-card-preview">
+          <div class="mini-board" style="grid-template-columns:repeat(9,8px)"></div>
+        </div>
+        <div class="diff-card-info">
+          <div class="diff-card-name">Dễ</div>
+          <div class="diff-card-meta">9×9 · 10 mìn</div>
+        </div>
+      </div>
+
+      <div class="diff-card" id="card-medium" onclick="setDifficulty('medium', this)">
+        <div class="diff-card-preview">
+          <div class="mini-board" style="grid-template-columns:repeat(12,5px)"></div>
+        </div>
+        <div class="diff-card-info">
+          <div class="diff-card-name">Vừa</div>
+          <div class="diff-card-meta">16×16 · 40 mìn</div>
+        </div>
+      </div>
+
+      <div class="diff-card" id="card-hard" onclick="setDifficulty('hard', this)">
+        <div class="diff-card-preview">
+          <div class="mini-board" style="grid-template-columns:repeat(16,4px)"></div>
+        </div>
+        <div class="diff-card-info">
+          <div class="diff-card-name">Khó</div>
+          <div class="diff-card-meta">30×16 · 99 mìn</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Thanh thông tin game -->
+    <div class="game-info-bar">
+      <div class="info-group">
+        <div class="info-value" id="mine-display">10</div>
+        <div class="info-label">💣 Mìn</div>
+      </div>
+      <button class="reset-btn" id="reset-btn" onclick="startGame()">😊</button>
+      <div class="info-group">
+        <div class="info-value" id="timer-display">0</div>
+        <div class="info-label">⏱ Giây</div>
+      </div>
+    </div>
+
+    <!-- Board game -->
+    <div id="board"></div>
+
+    <!-- Thông báo kết quả -->
+    <div class="status-msg" id="status-msg"></div>
+
+  </main>
+
+  <!-- ══ RIGHT PANEL ══ -->
+  <aside class="right-panel">
+    <div class="panel-title">Thống kê nhanh</div>
+    <div id="quick-stats">
+      <div class="quick-stat">
+        <span class="qs-label">Tổng ván</span>
+        <span class="qs-val" id="qs-total">—</span>
+      </div>
+      <div class="quick-stat">
+        <span class="qs-label">Thắng</span>
+        <span class="qs-val qs-win" id="qs-wins">—</span>
+      </div>
+      <div class="quick-stat">
+        <span class="qs-label">Thua</span>
+        <span class="qs-val qs-lose" id="qs-losses">—</span>
+      </div>
+      <div class="quick-stat">
+        <span class="qs-label">Tỉ lệ thắng</span>
+        <span class="qs-val" id="qs-rate">—</span>
+      </div>
+      <div class="quick-stat">
+        <span class="qs-label">Best (Dễ)</span>
+        <span class="qs-val" id="qs-best-easy">—</span>
+      </div>
+      <div class="quick-stat">
+        <span class="qs-label">Best (Vừa)</span>
+        <span class="qs-val" id="qs-best-medium">—</span>
+      </div>
+      <div class="quick-stat">
+        <span class="qs-label">Best (Khó)</span>
+        <span class="qs-val" id="qs-best-hard">—</span>
+      </div>
+    </div>
+
+    <div class="panel-divider"></div>
+    <div class="panel-title">Liên kết nhanh</div>
+    <a class="panel-link" href="stats.html">📊 Xem thống kê đầy đủ</a>
+    <a class="panel-link" href="leaderboard.html">🏆 Bảng xếp hạng</a>
+  </aside>
+
+</div>
+
+<script src="config.js"></script>
+<script src="game-api.js"></script>
+</body>
+</html>

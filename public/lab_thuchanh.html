@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bài Tập Thực Hành — Web Frontend</title>
+  <style>
+    :root {
+      --bg:      #0e1117;
+      --surface: #161b27;
+      --surface2:#1c2333;
+      --border:  #2a3348;
+      --accent:  #e94560;
+      --accent2: #4fc3f7;
+      --text:    #cdd5e0;
+      --text2:   #6b7a99;
+      --text3:   #3d4f6b;
+      --green:   #4ade80;
+      --mono:    'Courier New', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', sans-serif;
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-logo {
+      font-family: var(--mono);
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: -0.3px;
+    }
+
+    .header-sub {
+      font-size: 12px;
+      color: var(--text3);
+      padding-left: 16px;
+      border-left: 1px solid var(--border);
+    }
+
+    .header-back {
+      margin-left: auto;
+      padding: 5px 14px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: transparent;
+      color: var(--text2);
+      font-size: 12px;
+      text-decoration: none;
+      transition: all .15s;
+    }
+
+    .header-back:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── LAYOUT ── */
+    .layout {
+      display: flex;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 24px;
+      gap: 28px;
+      align-items: flex-start;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 200px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 72px;
+    }
+
+    .sidebar-title {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--text3);
+      margin-bottom: 8px;
+    }
+
+    .sidebar-link {
+      display: block;
+      padding: 7px 12px;
+      font-size: 13px;
+      color: var(--text2);
+      text-decoration: none;
+      border-radius: 6px;
+      border-left: 2px solid transparent;
+      transition: all .1s;
+    }
+
+    .sidebar-link:hover { background: var(--surface2); color: var(--text); }
+    .sidebar-link.active { color: var(--accent); border-left-color: var(--accent); background: rgba(233,69,96,.06); }
+
+    /* ── MAIN ── */
+    .main { flex: 1; min-width: 0; }
+
+    .page-intro {
+      margin-bottom: 32px;
+    }
+
+    .page-intro h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .page-intro p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+
+    /* ── LAB CARD ── */
+    .lab-section { margin-bottom: 40px; }
+
+    .lab-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .lab-num {
+      width: 36px;
+      height: 36px;
+      background: var(--accent);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      font-family: var(--mono);
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .lab-num.l2 { background: #7c3aed; }
+    .lab-num.l3 { background: #0284c7; }
+    .lab-num.l4 { background: #059669; }
+    .lab-num.l5 { background: #d97706; }
+    .lab-num.l6 { background: #dc2626; }
+    .lab-num.l7 { background: #7c3aed; }
+    .lab-num.l8 { background: #0d9488; }
+
+    .lab-meta h2 { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+    .lab-meta p  { font-size: 12px; color: var(--text2); }
+
+    .lab-badge {
+      margin-left: auto;
+      padding: 3px 10px;
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 600;
+      background: var(--surface2);
+      color: var(--text2);
+    }
+
+    /* ── FILE GRID ── */
+    .file-group { margin-bottom: 16px; }
+
+    .file-group-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--text3);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .file-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 8px;
+    }
+
+    .file-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all .15s;
+      cursor: default;
+    }
+
+    .file-card:hover { border-color: var(--accent2); transform: translateY(-1px); }
+
+    .file-icon { font-size: 18px; flex-shrink: 0; }
+    .file-name { font-size: 12px; font-family: var(--mono); color: var(--text); font-weight: 500; }
+    .file-sub  { font-size: 10px; color: var(--text3); margin-top: 1px; }
+
+    /* ── TOPIC TAGS ── */
+    .topic-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+
+    .topic-tag {
+      padding: 3px 10px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .tag-html    { background: rgba(233,69,96,.12);  color: #f87171; }
+    .tag-css     { background: rgba(79,195,247,.12); color: #4fc3f7; }
+    .tag-js      { background: rgba(251,191,36,.12); color: #fbbf24; }
+    .tag-layout  { background: rgba(74,222,128,.12); color: #4ade80; }
+    .tag-flex    { background: rgba(167,139,250,.12);color: #a78bfa; }
+    .tag-grid    { background: rgba(251,146,60,.12); color: #fb923c; }
+    .tag-table   { background: rgba(52,211,153,.12); color: #34d399; }
+    .tag-form    { background: rgba(244,114,182,.12);color: #f472b6; }
+    .tag-jquery  { background: rgba(99,102,241,.12); color: #818cf8; }
+    .tag-filter  { background: rgba(234,179,8,.12);  color: #eab308; }
+
+    /* ── STATS BAR ── */
+    .stats-bar {
+      display: flex;
+      gap: 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 20px;
+      margin-bottom: 28px;
+    }
+
+    .stat-item { text-align: center; }
+    .stat-val  { font-size: 22px; font-weight: 700; font-family: var(--mono); color: var(--accent); }
+    .stat-lbl  { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; }
+
+    @media (max-width: 640px) {
+      .sidebar { display: none; }
+      .layout  { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-logo">💻 Lab Thực Hành</div>
+  <div class="header-sub">Web Frontend — HTML, CSS, JavaScript</div>
+  <a href="index.html" class="header-back">← Quay về Game</a>
+</header>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-title">Danh sách Lab</div>
+    <a href="#lab01" class="sidebar-link active">Lab 01 — HTML cơ bản</a>
+    <a href="#lab02" class="sidebar-link">Lab 02 — HTML Table</a>
+    <a href="#lab03" class="sidebar-link">Lab 03 — CSS cơ bản</a>
+    <a href="#lab04" class="sidebar-link">Lab 04 — Layout CSS</a>
+    <a href="#lab05" class="sidebar-link">Lab 05 — Flexbox</a>
+    <a href="#lab06" class="sidebar-link">Lab 06 — CSS Grid</a>
+    <a href="#lab07" class="sidebar-link">Lab 07 — JavaScript</a>
+    <a href="#lab08" class="sidebar-link">Lab 08 — jQuery & Filter</a>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <div class="page-intro">
+      <h1>📚 Bài Tập Thực Hành Web Frontend</h1>
+      <p>Tổng hợp 8 Lab từ file baitapthuchanh.rar · Mỗi lab gồm ví dụ mẫu và bài tập thực hành</p>
+    </div>
+
+    <!-- Stats bar -->
+    <div class="stats-bar">
+      <div class="stat-item"><div class="stat-val">8</div><div class="stat-lbl">Lab</div></div>
+      <div class="stat-item"><div class="stat-val">30+</div><div class="stat-lbl">File HTML</div></div>
+      <div class="stat-item"><div class="stat-val">8</div><div class="stat-lbl">CSS files</div></div>
+      <div class="stat-item"><div class="stat-val">10+</div><div class="stat-lbl">JS files</div></div>
+    </div>
+
+    <!-- ── LAB 01 ── -->
+    <div class="lab-section" id="lab01">
+      <div class="lab-header">
+        <div class="lab-num">01</div>
+        <div class="lab-meta">
+          <h2>HTML Cơ Bản</h2>
+          <p>Cấu trúc trang, thẻ văn bản, danh sách, hình ảnh, liên kết</p>
+        </div>
+        <div class="lab-badge">4 file bài tập</div>
+      </div>
+      <div class="topic-tags">
+        <span class="topic-tag tag-html">HTML</span>
+        <span class="topic-tag tag-css">CSS cơ bản</span>
+        <span class="topic-tag tag-layout">Cấu trúc trang</span>
+      </div>
+      <div style="height:12px"></div>
+      <div class="file-group">
+        <div class="file-group-title">📂 Vi_du (ví dụ mẫu)</div>
+        <div class="file-grid">
+          <div class="file-card"><div class="file-icon">🌐</div><div><div class="file-name">lab1_bai3.html</div><div class="file-sub">Vi_du/</div></div></div>
+          <div class="file-card"><div class="file-icon">🌐</div><div><div class="file-name">lab1_bai4.html</div><div class="file-sub">Vi_du/</div></div></div>
+          <div class="file-card"><div class="file-icon">🎨</div><div><div class="file-name">main.css</div><div class="file-sub">Vi_du/styles/</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── LAB 02 ── -->
+    <div class="lab-section" id="lab02">
+      <div class="lab-header">
+        <div class="lab-num l2">02</div>
+        <div class="lab-meta">
+          <h2>HTML Table & Form</h2>
+          <p>Bảng dữ liệu, form nhập liệu, thuộc tính colspan/rowspan</p>
+        </div>
+        <div class="lab-badge">4 file bài tập</div>
+      </div>
+      <div class="topic-tags">
+        <span class="topic-tag tag-html">HTML</span>
+        <span class="topic-tag tag-table">Table</span>
+        <span class="topic-tag tag-form">Form</span>
+      </div>
+      <div style="height:12px"></div>
+      <div class="file-group">
+        <div class="file-group-title">📂 Vi_du_Lab01</div>
+        <div class="file-grid">
+          <div class="file-card"><div class="file-icon">🌐</div><div><div class="file-name">lab2_bai1.html</div><div class="file-sub">Vi_du_Lab01/</div></div></div>
+          <div class="file-card"><div class="file-icon">🌐</div><div><div class="file-name">lab2_bai2.html</div><div class="file-sub">Vi_du_Lab01/</div></div></div>
+          <div class="file-card"><div class="file-icon">🌐</div><div><div class="file-name">lab2_bai3.html</div><div class="file-sub">Vi_du_Lab01/</div></div></div>
+          <div class="file-card"><div class="file-icon">🌐</div><div><div class="file-name">lab02_khung_table.html</div><div class="file-sub">Lab02/</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── LAB 03 ── -->
+    <div class="lab-section" id="lab03">
+      <div class="lab-header">
+        <div class="lab-num l3">03</div>
+        <div class="lab-meta">
+          <h2>CSS Cơ Bản</h2>
+          <p>Selector, Box model, màu sắc, font, background, border</p>
+        </div>
+        <div class="lab-badge">4 file bài tập</div>
+      </div>
+      <div class="topic-tags">
+        <span class="topic-tag tag-css">CSS</span>
+        <span class="topic-tag tag-layout">Box Model</span>
+        <span class="topic-tag tag-html">Selector</span>
+      </div>
+      <div style="height:12px"></div>
+      <div class="file-group">
+        <div class="file-group-title">📂 Vi_du</div>
+        <div class="file-grid">
+          <div class="file-card"><div class="file-icon">🌐</div><div><div class="file-name">index.html</div><div class="file-sub">Vi_du/</div></div></div>
+          <div class="file-card"><div class="file-icon">🌐</div><div><div class="file-name">lab3_bai1.html</div><div class="file-sub">Vi_du/</div></div></div>
+          <div class="file-card"><div class="file-icon">🌐</div><div><div class="file-name">lab3_bai2.html</div><div class="file-sub">Vi_du/</div></div></div>
+          <div class="file-card"><div class="file-icon">🌐</div><div><div class="file-name">lab3_bai3.html</div><div class="file-sub">Vi_du/</div></div></div>
+          <div class="file-card"><div class="file-icon">🎨</div><div><div class="file-name">main.css</div><div class="file-sub">Vi_du/styles/</div></div></div>
+        </div>
+      </div>
+      <div class="file-group" style="margin-top:12px">
+        <div class="file-group-title">📂 Vi_du_Lab01</div>
+        <div class="file-grid">
+          <div class="file-card"><div class="file-icon">🌐</div><div><div class="file-name">index.html</div><div class="file-sub">Vi_du_Lab01/</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── LAB 04 ── -->
+    <div class="lab-section" id="lab04">
+      <div class="lab-header">
+        <div class="lab-num l4">04</div>
+        <div class="lab-meta">
+          <h2>CSS Layout — Position & Float</h2>
+          <p>Position (static/relative/absolute/fixed), Float, Clear</p>
+        </div>
+        <div class="lab-badge">4 file bài tập</div>
+      </div>
+      <div class="topic-tags">
+        <span class="topic-tag tag-css">CSS</span>
+        <span class="topic-tag tag-layout">Position</span>
+        <span class="topic-tag tag-flex">Float</span>
+      </div>
+      <div style="height:12px"></div>
+      <div class="file-group">
+        <div class="file-group-title">📂 Vi_du</div>
+        <div class="file-grid">
+          <div class="file-card"><div class="file-icon">🌐</div><div><div class="file-name">index.html</div><div class="file-sub">Vi_du/</div></div></div>
+          <div class="file-card"><div class="file-icon">🌐</div><div><div class="file-name">lab4_bai1.html</div><div class="file-sub">Vi_du/</div></div></div>
+          <div class="file-card"><div class="file-icon">🌐</div><div><div class="file-name">lab4_bai2.html</div><div class="file-sub">Vi_du/</div></div></div>
+          <div class="file-card"><div class="file-icon">🌐</div><div><div class="file-name">lab4_bai3.html</div><div class="file-sub">Vi_du/</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── LAB 05 ── -->
+    <div class="lab-section" id="lab05">
+      <div class="lab-header">
+        <div class="lab-num l5">05</div>
+        <div class="lab-meta">
+          <h2>CSS Flexbox</h2>
+          <p>Flexbox, responsive layout, navbar, card layout</p>
+        </div>
+        <div class="lab-badge">5 file bài tập</div>
+      </div>
+      <div class="topic-tags">
+        <span class="topic-tag tag-css">CSS</span>
+        <span class="topic-tag tag-flex">Flexbox</span>
+        <span class="topic-tag tag-layout">Responsive</span>
+        <span class="topic-tag tag-js">Bootstrap</span>
+      </div>
+      <div style="height:12px"></div>
+      <div class="file-group">
+        <div class="file-group-title">📂 Vi_du</div>
+        <div class="file-grid">
+          <div class="file-card"><div class="file-icon">🌐</div><div><div class="file-name">index.html</div><div class="file-sub">Vi_du/</div></div></div>
+          <div class="file-card"><div class="file-icon">🎨</div><div><div class="file-name">main.css</div><div class="file-sub">Vi_du/styles/</div></div></div>
+        </div>
+      </div>
+      <div class="file-group" style="margin-top:12px">
+        <div class="file-group-title">📂 Bai_2 (Bootstrap)</div>
+        <div class="file-grid">
+          <div class="file-card"><div class="file-icon">🌐</div><div><div class="file-name">index.html</div><div class="file-sub">Bai_2/</div></div></div>
+          <div class="file-card"><div class="file-icon">🌐</div><div><div class="file-name">lab5_bai1.html</div><div class="file-sub">Bai_2/</div></div></div>
+          <div class="file-card"><div class="file-icon">🌐</div><div><div class="file-name">lab5_bai2.html</div><div class="file-sub">Bai_2/</div></div></div>
+          <div class="file-card"><div class="file-icon">🌐</div><div><div class="file-name">lab5_bai3.html</div><div class="file-sub">Bai_2/</div></div></div>
+          <div class="file-card"><div class="file-icon">🌐</div><div><div class="file-name">lab5_bai4.html</div><div class="file-sub">Bai_2/</div></div></div>
+          <div class="file-card"><div class="file-icon">🎨</div><div><div class="file-name">style.css</div><div class="file-sub">Bai_2/css/</div></div></div>
+          <div class="file-card"><div class="file-icon">⚙️</div><div><div class="file-name">main.js</div><div class="file-sub">Bai_2/js/</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── LAB 06 ── -->
+    <div class="lab-section" id="lab06">
+      <div class="lab-header">
+        <div class="lab-num l6">06</div>
+        <div class="lab-meta">
+          <h2>CSS Grid</h2>
+          <p>Grid layout, grid-template, responsive grid, minh hoạ layout</p>
+        </div>
+        <div class="lab-badge">4 file bài tập</div>
+      </div>
+      <div class="topic-tags">
+        <span class="topic-tag tag-css">CSS</span>
+        <span class="topic-tag tag-grid">Grid</span>
+        <span class="topic-tag tag-layout">Layout</span>
+        <span class="topic-tag tag-js">Bootstrap</span>
+      </div>
+      <div style="height:12px"></div>
+      <div class="file-group">
+        <div class="file-group-title">📂 Vi_du</div>
+        <div class="file-grid">
+          <div class="file-card"><div class="file-icon">🌐</div><div><div class="file-name">index.html</div><div class="file-sub">Vi_du/</div></div></div>
+          <div class="file-card"><div class="file-icon">🎨</div><div><div class="file-name">style.css</div><div class="file-sub">Vi_du/css/</div></div></div>
+          <div class="file-card"><div class="file-icon">⚙️</div><div><div class="file-name">main.js</div><div class="file-sub">Vi_du/js/</div></div></div>
+        </div>
+      </div>
+      <div class="file-group" style="margin-top:12px">
+        <div class="file-group-title">📂 Bai_2_Minh_hoa_layout</div>
+        <div class="file-grid">
+          <div class="file-card"><div class="file-icon">🌐</div><div><div class="file-name">index.html</div><div class="file-sub">Bai_2_Minh_hoa/</div></div></div>
+          <div class="file-card"><div class="file-icon">🌐</div><div><div class="file-name">lab6_bai1.html</div><div class="file-sub">Bai_2_Minh_hoa/</div></div></div>
+          <div class="file-card"><div class="file-icon">🌐</div><div><div class="file-name">lab6_bai2.html</div><div class="file-sub">Bai_2_Minh_hoa/</div></div></div>
+          <div class="file-card"><div class="file-icon">🌐</div><div><div class="file-name">lab6_bai3.html</div><div class="file-sub">Bai_2_Minh_hoa/</div></div></div>
+          <div class="file-card"><div class="file-icon">🎨</div><div><div class="file-name">style.css</div><div class="file-sub">Bai_2_Minh_hoa/css/</div></div></div>
+          <div class="file-card"><div class="file-icon">⚙️</div><div><div class="file-name">main.js</div><div class="file-sub">Bai_2_Minh_hoa/js/</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── LAB 07 ── -->
+    <div class="lab-section" id="lab07">
+      <div class="lab-header">
+        <div class="lab-num l7">07</div>
+        <div class="lab-meta">
+          <h2>JavaScript Cơ Bản</h2>
+          <p>DOM manipulation, event, mixitup filter, carousel slider</p>
+        </div>
+        <div class="lab-badge">3 file bài tập</div>
+      </div>
+      <div class="topic-tags">
+        <span class="topic-tag tag-js">JavaScript</span>
+        <span class="topic-tag tag-jquery">jQuery</span>
+        <span class="topic-tag tag-filter">Filter</span>
+        <span class="topic-tag tag-layout">Carousel</span>
+      </div>
+      <div style="height:12px"></div>
+      <div class="file-group">
+        <div class="file-group-title">📂 Vi_du</div>
+        <div class="file-grid">
+          <div class="file-card"><div class="file-icon">🌐</div><div><div class="file-name">index.html</div><div class="file-sub">Vi_du/</div></div></div>
+          <div class="file-card"><div class="file-icon">🎨</div><div><div class="file-name">style.css</div><div class="file-sub">Vi_du/css/</div></div></div>
+          <div class="file-card"><div class="file-icon">⚙️</div><div><div class="file-name">main.js</div><div class="file-sub">Vi_du/js/</div></div></div>
+          <div class="file-card"><div class="file-icon">⚙️</div><div><div class="file-name">mixitup.min.js</div><div class="file-sub">Vi_du/js/</div></div></div>
+        </div>
+      </div>
+      <div class="file-group" style="margin-top:12px">
+        <div class="file-group-title">📂 demo_bai_2</div>
+        <div class="file-grid">
+          <div class="file-card"><div class="file-icon">🌐</div><div><div class="file-name">index.html</div><div class="file-sub">demo_bai_2/</div></div></div>
+          <div class="file-card"><div class="file-icon">🌐</div><div><div class="file-name">lab7_bai1.html</div><div class="file-sub">demo_bai_2/</div></div></div>
+          <div class="file-card"><div class="file-icon">🌐</div><div><div class="file-name">lab7_bai2.html</div><div class="file-sub">demo_bai_2/</div></div></div>
+          <div class="file-card"><div class="file-icon">🎨</div><div><div class="file-name">style.css</div><div class="file-sub">demo_bai_2/css/</div></div></div>
+          <div class="file-card"><div class="file-icon">⚙️</div><div><div class="file-name">main.js</div><div class="file-sub">demo_bai_2/js/</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── LAB 08 ── -->
+    <div class="lab-section" id="lab08">
+      <div class="lab-header">
+        <div class="lab-num l8">08</div>
+        <div class="lab-meta">
+          <h2>jQuery & Plugin nâng cao</h2>
+          <p>jQuery, Mixitup filter, Owl Carousel, Slicknav mobile menu, product detail</p>
+        </div>
+        <div class="lab-badge">5 file bài tập</div>
+      </div>
+      <div class="topic-tags">
+        <span class="topic-tag tag-jquery">jQuery</span>
+        <span class="topic-tag tag-filter">Mixitup</span>
+        <span class="topic-tag tag-layout">Owl Carousel</span>
+        <span class="topic-tag tag-js">Slicknav</span>
+      </div>
+      <div style="height:12px"></div>
+      <div class="file-group">
+        <div class="file-group-title">📂 Bài tập chính (Lab08/)</div>
+        <div class="file-grid">
+          <div class="file-card"><div class="file-icon">🌐</div><div><div class="file-name">lab8_bai1.html</div><div class="file-sub">Lab08/</div></div></div>
+          <div class="file-card"><div class="file-icon">🌐</div><div><div class="file-name">lab8_bai2.html</div><div class="file-sub">Lab08/</div></div></div>
+          <div class="file-card"><div class="file-icon">🌐</div><div><div class="file-name">lba8_bai3.html</div><div class="file-sub">Lab08/</div></div></div>
+        </div>
+      </div>
+      <div class="file-group" style="margin-top:12px">
+        <div class="file-group-title">📂 Vi_du_1 & Vi_du_2</div>
+        <div class="file-grid">
+          <div class="file-card"><div class="file-icon">🌐</div><div><div class="file-name">index.html</div><div class="file-sub">Vi_du_1/</div></div></div>
+          <div class="file-card"><div class="file-icon">🎨</div><div><div class="file-name">style.css</div><div class="file-sub">Vi_du_1/css/</div></div></div>
+          <div class="file-card"><div class="file-icon">⚙️</div><div><div class="file-name">main.js</div><div class="file-sub">Vi_du_1/js/</div></div></div>
+          <div class="file-card"><div class="file-icon">🌐</div><div><div class="file-name">index.html</div><div class="file-sub">Vi_du_2/</div></div></div>
+          <div class="file-card"><div class="file-icon">🎨</div><div><div class="file-name">style.css</div><div class="file-sub">Vi_du_2/css/</div></div></div>
+          <div class="file-card"><div class="file-icon">⚙️</div><div><div class="file-name">main.js</div><div class="file-sub">Vi_du_2/js/</div></div></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  // Highlight sidebar link khi scroll
+  const sections = document.querySelectorAll('.lab-section');
+  const links    = document.querySelectorAll('.sidebar-link');
+
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const id = entry.target.id;
+        const active = document.querySelector(`.sidebar-link[href="#${id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { threshold: 0.3 });
+
+  sections.forEach(s => obs.observe(s));
+</script>
+
+</body>
+</html>

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Minesweeper — Đăng nhập</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #1a1a2e;
+      color: #e0e0e0;
+      font-family: 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 420px;
+      padding: 0 16px;
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .logo h1 {
+      font-size: 32px;
+      color: #e94560;
+      letter-spacing: 3px;
+    }
+
+    .logo p { color: #666; margin-top: 6px; font-size: 14px; }
+
+    /* Tab chuyển đổi Đăng nhập / Đăng ký */
+    .tabs {
+      display: flex;
+      background: #16213e;
+      border-radius: 12px 12px 0 0;
+      overflow: hidden;
+      border: 1px solid #0f3460;
+      border-bottom: none;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 14px;
+      border: none;
+      background: transparent;
+      color: #666;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 500;
+    }
+
+    .tab-btn.active {
+      background: #0f3460;
+      color: #e94560;
+    }
+
+    /* Form card */
+    .card {
+      background: #16213e;
+      border: 1px solid #0f3460;
+      border-radius: 0 0 12px 12px;
+      padding: 28px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      color: #aaa;
+      margin-bottom: 7px;
+    }
+
+    input {
+      width: 100%;
+      padding: 11px 14px;
+      background: #0f3460;
+      border: 1px solid #1a4a7a;
+      border-radius: 8px;
+      color: #e0e0e0;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus { border-color: #e94560; }
+
+    .btn-submit {
+      width: 100%;
+      padding: 13px;
+      background: #e94560;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      margin-top: 4px;
+    }
+
+    .btn-submit:hover   { opacity: 0.9; }
+    .btn-submit:active  { transform: scale(0.98); }
+    .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Thông báo lỗi / thành công */
+    .alert {
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    .alert.error   { background: #3d1a1a; color: #e57373; border: 1px solid #5c2a2a; }
+    .alert.success { background: #1a3d1a; color: #81c784; border: 1px solid #2a5c2a; }
+    .alert.show    { display: block; }
+
+    /* Link bên dưới */
+    .bottom-link {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 13px;
+      color: #666;
+    }
+
+    .bottom-link a {
+      color: #e94560;
+      text-decoration: none;
+    }
+
+    /* Form ẩn/hiện */
+    .form-section { display: none; }
+    .form-section.active { display: block; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="logo">
+    <h1>💣 MINESWEEPER</h1>
+    <p>Đăng nhập để lưu điểm và thi đấu</p>
+  </div>
+
+  <!-- Tab -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('login')">Đăng nhập</button>
+    <button class="tab-btn"        onclick="switchTab('register')">Đăng ký</button>
+  </div>
+
+  <div class="card">
+    <!-- Alert dùng chung -->
+    <div class="alert" id="alert"></div>
+
+    <!-- Form đăng nhập -->
+    <div class="form-section active" id="form-login">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="login-email" placeholder="example@email.com" />
+      </div>
+      <div class="form-group">
+        <label>Mật khẩu</label>
+        <input type="password" id="login-password" placeholder="Nhập mật khẩu" />
+      </div>
+      <button class="btn-submit" onclick="handleLogin()">Đăng nhập</button>
+    </div>
+
+    <!-- Form đăng ký -->
+    <div class="form-section" id="form-register">
+      <div class="form-group">
+        <label>Tên người dùng</label>
+        <input type="text" id="reg-username" placeholder="Ít nhất 3 ký tự" />
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="reg-email" placeholder="example@email.com" />
+      </div>
+      <div class="form-group">
+        <label>Mật khẩu</label>
+        <input type="password" id="reg-password" placeholder="Ít nhất 6 ký tự" />
+      </div>
+      <button class="btn-submit" onclick="handleRegister()">Tạo tài khoản</button>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-bottom:12px"><span id="theme-btn-wrap" style="display:inline-block"></span></div>
+  <div class="bottom-link">
+    <a href="leaderboard.html">🏆 Xem bảng xếp hạng</a> &nbsp;·&nbsp;
+    <a href="index.html">🎮 Chơi game</a>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script>
+// API được khai báo trong config.js
+
+// ── Chuyển tab ──
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    b.classList.toggle('active', (i === 0) === (tab === 'login'));
+  });
+  document.getElementById('form-login').classList.toggle('active', tab === 'login');
+  document.getElementById('form-register').classList.toggle('active', tab === 'register');
+  hideAlert();
+}
+
+// ── Hiển thị thông báo ──
+function showAlert(msg, type) {
+  const el = document.getElementById('alert');
+  el.textContent = msg;
+  el.className   = `alert ${type} show`;
+}
+
+function hideAlert() {
+  document.getElementById('alert').className = 'alert';
+}
+
+// ── Đăng nhập ──
+async function handleLogin() {
+  const email    = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+
+  if (!email || !password) return showAlert('Vui lòng điền đầy đủ thông tin', 'error');
+
+  const btn = document.querySelector('#form-login .btn-submit');
+  btn.disabled     = true;
+  btn.textContent  = 'Đang đăng nhập...';
+
+  try {
+    const res  = await fetch(`${API}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      showAlert(data.error, 'error');
+    } else {
+      // Lưu token và thông tin user vào localStorage
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user',  JSON.stringify(data.user));
+      showAlert('Đăng nhập thành công! Đang chuyển...', 'success');
+      setTimeout(() => window.location.href = 'index.html', 1000);
+    }
+  } catch {
+    showAlert('Không kết nối được server', 'error');
+  } finally {
+    btn.disabled    = false;
+    btn.textContent = 'Đăng nhập';
+  }
+}
+
+// ── Đăng ký ──
+async function handleRegister() {
+  const username = document.getElementById('reg-username').value.trim();
+  const email    = document.getElementById('reg-email').value.trim();
+  const password = document.getElementById('reg-password').value;
+
+  if (!username || !email || !password)
+    return showAlert('Vui lòng điền đầy đủ thông tin', 'error');
+
+  const btn = document.querySelector('#form-register .btn-submit');
+  btn.disabled    = true;
+  btn.textContent = 'Đang tạo tài khoản...';
+
+  try {
+    const res  = await fetch(`${API}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, email, password })
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      showAlert(data.error, 'error');
+    } else {
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user',  JSON.stringify(data.user));
+      showAlert('Tạo tài khoản thành công! Đang chuyển...', 'success');
+      setTimeout(() => window.location.href = 'index.html', 1000);
+    }
+  } catch {
+    showAlert('Không kết nối được server', 'error');
+  } finally {
+    btn.disabled    = false;
+    btn.textContent = 'Tạo tài khoản';
+  }
+}
+
+// Cho phép nhấn Enter để submit
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter') return;
+  const isLogin = document.getElementById('form-login').classList.contains('active');
+  if (isLogin) handleLogin(); else handleRegister();
+});
+
+createThemeToggle(document.getElementById("theme-btn-wrap"));
+// Nếu đã đăng nhập rồi → chuyển thẳng vào game
+if (localStorage.getItem('token')) {
+  window.location.href = 'index.html';
+}
+</script>
+</body>
+</html>

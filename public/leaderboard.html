@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Minesweeper — Bảng xếp hạng</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #1a1a2e;
+      color: #e0e0e0;
+      font-family: 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      padding: 32px 16px;
+    }
+
+    .page { max-width: 700px; margin: 0 auto; }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .header h1 { font-size: 26px; color: #e94560; letter-spacing: 2px; }
+
+    .nav-links { display: flex; gap: 10px; }
+
+    .nav-btn {
+      padding: 7px 16px;
+      border: 1px solid #0f3460;
+      border-radius: 20px;
+      background: #16213e;
+      color: #aaa;
+      cursor: pointer;
+      font-size: 13px;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .nav-btn:hover { border-color: #e94560; color: #e94560; }
+
+    /* Tab chọn độ khó */
+    .diff-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .diff-tab {
+      padding: 8px 20px;
+      border: 1px solid #0f3460;
+      border-radius: 20px;
+      background: transparent;
+      color: #666;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+
+    .diff-tab.active {
+      background: #e94560;
+      border-color: #e94560;
+      color: white;
+    }
+
+    /* Bảng xếp hạng */
+    .leaderboard-card {
+      background: #16213e;
+      border: 1px solid #0f3460;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .lb-header {
+      display: grid;
+      grid-template-columns: 48px 1fr 120px 100px;
+      padding: 12px 20px;
+      background: #0f3460;
+      font-size: 12px;
+      color: #888;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .lb-row {
+      display: grid;
+      grid-template-columns: 48px 1fr 120px 100px;
+      padding: 14px 20px;
+      border-bottom: 1px solid #0f3460;
+      align-items: center;
+      transition: background 0.15s;
+    }
+
+    .lb-row:last-child { border-bottom: none; }
+    .lb-row:hover      { background: #1a2a4a; }
+
+    /* Top 3 nổi bật */
+    .lb-row.rank-1 { background: rgba(255, 215, 0, 0.05); }
+    .lb-row.rank-2 { background: rgba(192, 192, 192, 0.05); }
+    .lb-row.rank-3 { background: rgba(205, 127, 50, 0.05); }
+
+    .rank {
+      font-size: 18px;
+      text-align: center;
+    }
+
+    .rank-num { font-size: 14px; font-weight: 600; color: #666; text-align: center; }
+
+    .player-info .name     { font-size: 15px; font-weight: 500; color: #e0e0e0; }
+    .player-info .date     { font-size: 11px; color: #555; margin-top: 2px; }
+
+    .difficulty-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .diff-easy   { background: #1a3d1a; color: #81c784; }
+    .diff-medium { background: #3d2a00; color: #ffb74d; }
+    .diff-hard   { background: #3d1a1a; color: #e57373; }
+
+    .time {
+      font-family: 'Courier New', monospace;
+      font-size: 16px;
+      font-weight: 700;
+      color: #e94560;
+      text-align: right;
+    }
+
+    .empty {
+      padding: 40px;
+      text-align: center;
+      color: #555;
+      font-size: 14px;
+    }
+
+    .loading {
+      padding: 40px;
+      text-align: center;
+      color: #555;
+      font-size: 14px;
+    }
+
+    /* User info góc phải */
+    .user-info {
+      font-size: 13px;
+      color: #888;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .user-info span { color: #e94560; font-weight: 500; }
+
+    .logout-btn {
+      background: none;
+      border: none;
+      color: #555;
+      cursor: pointer;
+      font-size: 12px;
+      text-decoration: underline;
+    }
+
+    .logout-btn:hover { color: #e94560; }
+  </style>
+</head>
+<body>
+
+<div class="page">
+
+  <div class="header">
+    <h1>🏆 Bảng xếp hạng</h1>
+
+    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+      <div class="user-info" id="user-info"></div>
+      <div class="nav-links">
+        <a href="index.html"  class="nav-btn">🎮 Chơi game</a>
+        <a href="auth.html"   class="nav-btn" id="auth-link">Đăng nhập</a>
+        <span id="theme-btn-wrap"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab chọn độ khó -->
+  <div class="diff-tabs">
+    <button class="diff-tab active" onclick="loadLeaderboard('easy',   this)">🟢 Dễ (9×9)</button>
+    <button class="diff-tab"        onclick="loadLeaderboard('medium', this)">🟡 Vừa (16×16)</button>
+    <button class="diff-tab"        onclick="loadLeaderboard('hard',   this)">🔴 Khó (30×16)</button>
+  </div>
+
+  <!-- Bảng điểm -->
+  <div class="leaderboard-card">
+    <div class="lb-header">
+      <div>#</div>
+      <div>Người chơi</div>
+      <div>Độ khó</div>
+      <div style="text-align:right">Thời gian</div>
+    </div>
+    <div id="lb-body">
+      <div class="loading">Đang tải...</div>
+    </div>
+  </div>
+
+</div>
+
+<script src="config.js"></script>
+<script>
+// API được khai báo trong config.js
+
+const RANK_ICONS = { 1: '🥇', 2: '🥈', 3: '🥉' };
+const DIFF_LABEL = { easy: 'Dễ', medium: 'Vừa', hard: 'Khó' };
+const DIFF_CLASS = { easy: 'diff-easy', medium: 'diff-medium', hard: 'diff-hard' };
+
+// ── Hiển thị thông tin user đang đăng nhập ──
+function renderUserInfo() {
+  const userStr  = localStorage.getItem('user');
+  const infoEl   = document.getElementById('user-info');
+  const authLink = document.getElementById('auth-link');
+
+  if (userStr) {
+    const user     = JSON.parse(userStr);
+    infoEl.innerHTML = `Xin chào, <span>${user.username}</span>
+      <button class="logout-btn" onclick="logout()">Đăng xuất</button>`;
+    authLink.style.display = 'none';
+  }
+}
+
+function logout() {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  window.location.reload();
+}
+
+// ── Tải và hiển thị bảng xếp hạng ──
+async function loadLeaderboard(difficulty, btn) {
+  // Cập nhật tab active
+  document.querySelectorAll('.diff-tab').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+
+  document.getElementById('lb-body').innerHTML = '<div class="loading">Đang tải...</div>';
+
+  try {
+    const res  = await fetch(`${API}/leaderboard?difficulty=${difficulty}`);
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(data.error);
+
+    renderRows(data);
+  } catch (err) {
+    document.getElementById('lb-body').innerHTML =
+      `<div class="empty">❌ Không tải được dữ liệu. Kiểm tra server đã chạy chưa?</div>`;
+  }
+}
+
+function renderRows(scores) {
+  const body = document.getElementById('lb-body');
+
+  if (scores.length === 0) {
+    body.innerHTML = '<div class="empty">Chưa có ai lên bảng. Hãy là người đầu tiên! 🎮</div>';
+    return;
+  }
+
+  body.innerHTML = scores.map((s, i) => {
+    const rank    = i + 1;
+    const rankEl  = RANK_ICONS[rank]
+      ? `<div class="rank">${RANK_ICONS[rank]}</div>`
+      : `<div class="rank-num">${rank}</div>`;
+
+    // Định dạng ngày
+    const date = new Date(s.created_at).toLocaleDateString('vi-VN');
+
+    return `
+      <div class="lb-row ${rank <= 3 ? 'rank-' + rank : ''}">
+        ${rankEl}
+        <div class="player-info">
+          <div class="name">${escapeHtml(s.player_name)}</div>
+          <div class="date">${date}</div>
+        </div>
+        <div>
+          <span class="difficulty-badge ${DIFF_CLASS[s.difficulty]}">
+            ${DIFF_LABEL[s.difficulty]}
+          </span>
+        </div>
+        <div class="time">${s.time_seconds}s</div>
+      </div>
+    `;
+  }).join('');
+}
+
+// Tránh XSS: escape ký tự đặc biệt trong tên người chơi
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Khởi chạy
+createThemeToggle(document.getElementById("theme-btn-wrap"));
+renderUserInfo();
+loadLeaderboard('easy');
+</script>
+</body>
+</html>

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Minesweeper — Thống kê</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="theme.js"></script>
+  <style>
+    .stats-layout { max-width: 760px; margin: 0 auto; padding: 24px; }
+    .page-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; flex-wrap:wrap; gap:12px; }
+    .page-header h1 { font-size:20px; font-weight:600; color:var(--text); font-family:var(--mono); }
+    .nav-pills { display:flex; gap:8px; flex-wrap:wrap; }
+    .nav-pill { padding:6px 14px; border:1px solid var(--border); border-radius:20px; background:var(--surface); color:var(--text2); cursor:pointer; font-size:12px; text-decoration:none; transition:all .15s; font-family:var(--sans); }
+    .nav-pill:hover { border-color:var(--accent); color:var(--accent); }
+
+    .user-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:20px 24px; display:flex; align-items:center; gap:16px; margin-bottom:20px; }
+    .avatar { width:52px; height:52px; border-radius:50%; background:var(--accent); display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:700; color:white; flex-shrink:0; font-family:var(--mono); }
+    .user-meta h2 { font-size:17px; font-weight:600; color:var(--text); margin-bottom:3px; }
+    .user-meta p  { font-size:12px; color:var(--text2); }
+
+    .stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:10px; margin-bottom:20px; }
+    .stat-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px; text-align:center; }
+    .stat-value { font-size:26px; font-weight:700; font-family:var(--mono); color:var(--accent); line-height:1.1; }
+    .stat-label { font-size:10px; color:var(--text3); margin-top:4px; text-transform:uppercase; letter-spacing:.5px; }
+    .stat-card.s-win  .stat-value { color:var(--win); }
+    .stat-card.s-lose .stat-value { color:var(--lose); }
+    .stat-card.s-rate .stat-value { color:var(--accent2); }
+
+    .section-title { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.08em; color:var(--text3); margin-bottom:12px; }
+
+    .diff-stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px; margin-bottom:24px; }
+    .diff-stat-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px 16px; }
+    .diff-stat-header { display:flex; align-items:center; gap:8px; margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid var(--border); }
+    .diff-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+    .dot-easy   { background:var(--win); }
+    .dot-medium { background:#fb923c; }
+    .dot-hard   { background:var(--lose); }
+    .diff-stat-name { font-size:13px; font-weight:600; color:var(--text); }
+    .diff-row { display:flex; justify-content:space-between; font-size:12px; padding:3px 0; }
+    .diff-row .dl { color:var(--text2); }
+    .diff-row .dv { color:var(--text); font-weight:500; font-family:var(--mono); }
+    .diff-row .dv.best { color:var(--accent); }
+    .diff-row .dv.rate { color:var(--win); }
+    .rate-bar  { background:var(--surface2); border-radius:3px; height:3px; margin-top:10px; overflow:hidden; }
+    .rate-fill { height:100%; border-radius:3px; background:var(--win); transition:width .6s ease; }
+    .no-data   { color:var(--text3); font-size:12px; font-style:italic; text-align:center; padding:10px 0; }
+
+    /* ── BADGES ── */
+    .badge-progress { font-size:12px; color:var(--text2); margin-bottom:12px; }
+    .badge-progress strong { color:var(--win); font-family:var(--mono); }
+
+    .badges-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:10px; margin-bottom:24px; }
+
+    .badge-card {
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:14px;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      transition:all .15s;
+    }
+
+    .badge-card.earned { border-color:#2a4a2a; }
+    .badge-card.locked { opacity:.35; filter:grayscale(.9); }
+    .badge-card:hover  { transform:translateY(-1px); }
+
+    .badge-icon { font-size:28px; line-height:1; flex-shrink:0; }
+    .badge-info .badge-name { font-size:13px; font-weight:600; color:var(--text); margin-bottom:2px; }
+    .badge-info .badge-desc { font-size:11px; color:var(--text2); line-height:1.3; }
+    .badge-info .badge-date { font-size:10px; color:var(--win); margin-top:4px; font-family:var(--mono); }
+
+    /* ── HISTORY ── */
+    .history-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+    .history-row  { display:flex; align-items:center; padding:10px 16px; border-bottom:1px solid var(--surface2); gap:12px; font-size:12px; }
+    .history-row:last-child { border-bottom:none; }
+    .result-badge { padding:2px 9px; border-radius:10px; font-size:10px; font-weight:600; min-width:46px; text-align:center; }
+    .badge-won  { background:rgba(74,222,128,.1);  color:var(--win); }
+    .badge-lost { background:rgba(248,113,113,.1); color:var(--lose); }
+    .history-diff { color:var(--text2); flex:1; }
+    .history-time { color:var(--accent); font-family:var(--mono); font-weight:600; min-width:38px; text-align:right; }
+    .history-date { color:var(--text3); font-size:11px; min-width:80px; text-align:right; }
+
+    .empty-state { text-align:center; padding:40px; color:var(--text3); font-size:13px; }
+    .loading     { text-align:center; padding:60px; color:var(--text3); }
+    .mb16 { margin-bottom:16px; }
+    .mb24 { margin-bottom:24px; }
+  </style>
+</head>
+<body>
+
+<div class="stats-layout">
+  <div class="page-header">
+    <h1>📊 Thống kê của tôi</h1>
+    <div class="nav-pills">
+      <a href="index.html"       class="nav-pill">🎮 Chơi game</a>
+      <a href="leaderboard.html" class="nav-pill">🏆 Xếp hạng</a>
+      <a href="#" class="nav-pill" id="logout-btn">Đăng xuất</a>
+      <span id="theme-btn-wrap"></span>
+    </div>
+  </div>
+  <div id="content"><div class="loading">⏳ Đang tải...</div></div>
+</div>
+
+<script src="config.js"></script>
+<script>
+// API được khai báo trong config.js
+const token = localStorage.getItem('token');
+const user  = JSON.parse(localStorage.getItem('user') || 'null');
+if (!token || !user) window.location.href = 'auth.html';
+
+document.getElementById('logout-btn').addEventListener('click', () => {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  window.location.href = 'auth.html';
+});
+
+const DIFF_LABEL = { easy:'Dễ (9×9)', medium:'Vừa (16×16)', hard:'Khó (30×16)' };
+const DIFF_SHORT = { easy:'🟢 Dễ', medium:'🟡 Vừa', hard:'🔴 Khó' };
+
+async function loadAll() {
+  try {
+    const [statsRes, badgeRes] = await Promise.all([
+      fetch(`${API}/stats/me`,        { headers:{ 'Authorization':`Bearer ${token}` } }),
+      fetch(`${API}/achievements/me`, { headers:{ 'Authorization':`Bearer ${token}` } })
+    ]);
+    const stats  = await statsRes.json();
+    const badges = await badgeRes.json();
+    if (!statsRes.ok) throw new Error(stats.error);
+    render(stats, badges);
+  } catch {
+    document.getElementById('content').innerHTML =
+      '<div class="empty-state">❌ Không tải được. Kiểm tra server đã chạy chưa.</div>';
+  }
+}
+
+function render(stats, badges) {
+  const { overall, byDifficulty, recentGames } = stats;
+  const initial = user.username.charAt(0).toUpperCase();
+  const joined  = new Date(stats.user.memberSince)
+    .toLocaleDateString('vi-VN', { year:'numeric', month:'long' });
+
+  document.getElementById('content').innerHTML = `
+    <div class="user-card mb24">
+      <div class="avatar">${initial}</div>
+      <div class="user-meta">
+        <h2>${esc(user.username)}</h2>
+        <p>Thành viên từ ${joined} · <strong style="color:var(--win)">${badges.earned}</strong>/${badges.total} huy hiệu</p>
+      </div>
+    </div>
+
+    <div class="stat-grid mb24">
+      <div class="stat-card">
+        <div class="stat-value">${overall.totalGames}</div>
+        <div class="stat-label">Tổng ván</div>
+      </div>
+      <div class="stat-card s-win">
+        <div class="stat-value">${overall.totalWins}</div>
+        <div class="stat-label">Thắng</div>
+      </div>
+      <div class="stat-card s-lose">
+        <div class="stat-value">${overall.totalLosses}</div>
+        <div class="stat-label">Thua</div>
+      </div>
+      <div class="stat-card s-rate">
+        <div class="stat-value">${overall.winRate}%</div>
+        <div class="stat-label">Tỉ lệ thắng</div>
+      </div>
+    </div>
+
+    <div class="section-title mb16">Theo độ khó</div>
+    <div class="diff-stat-grid mb24">
+      ${renderDiff('easy',   byDifficulty.easy)}
+      ${renderDiff('medium', byDifficulty.medium)}
+      ${renderDiff('hard',   byDifficulty.hard)}
+    </div>
+
+    <div class="section-title">Huy hiệu thành tích</div>
+    <div class="badge-progress mb16">
+      Đã đạt <strong>${badges.earned}</strong> / ${badges.total} huy hiệu
+    </div>
+    <div class="badges-grid mb24">${renderBadges(badges.badges)}</div>
+
+    <div class="section-title mb16">10 ván gần nhất</div>
+    <div class="history-card">${renderHistory(recentGames)}</div>
+  `;
+}
+
+function renderDiff(key, data) {
+  if (!data || data.total_games === 0) return `
+    <div class="diff-stat-card">
+      <div class="diff-stat-header">
+        <div class="diff-dot dot-${key}"></div>
+        <div class="diff-stat-name">${DIFF_LABEL[key]}</div>
+      </div>
+      <div class="no-data">Chưa có ván nào</div>
+    </div>`;
+  const best = data.best_time ? `${data.best_time}s` : '—';
+  const rate = Math.round(data.win_rate || 0);
+  return `
+    <div class="diff-stat-card">
+      <div class="diff-stat-header">
+        <div class="diff-dot dot-${key}"></div>
+        <div class="diff-stat-name">${DIFF_LABEL[key]}</div>
+      </div>
+      <div class="diff-row"><span class="dl">Số ván</span><span class="dv">${data.total_games}</span></div>
+      <div class="diff-row"><span class="dl">Thắng / Thua</span><span class="dv">${data.wins} / ${data.losses}</span></div>
+      <div class="diff-row"><span class="dl">Tỉ lệ thắng</span><span class="dv rate">${data.win_rate}%</span></div>
+      <div class="diff-row"><span class="dl">Best time</span><span class="dv best">${best}</span></div>
+      <div class="rate-bar"><div class="rate-fill" style="width:${rate}%"></div></div>
+    </div>`;
+}
+
+function renderBadges(list) {
+  return list.map(b => {
+    const dateStr = b.earnedAt
+      ? '✓ ' + new Date(b.earnedAt).toLocaleDateString('vi-VN') : '';
+    return `
+      <div class="badge-card ${b.earned ? 'earned' : 'locked'}"
+           style="${b.earned ? `background:${b.color};border-color:#2a4a2a` : ''}">
+        <div class="badge-icon">${b.icon}</div>
+        <div class="badge-info">
+          <div class="badge-name">${esc(b.name)}</div>
+          <div class="badge-desc">${esc(b.desc)}</div>
+          ${b.earned ? `<div class="badge-date">${dateStr}</div>` : ''}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderHistory(games) {
+  if (!games || games.length === 0)
+    return '<div class="empty-state">Chưa có ván nào được ghi lại</div>';
+  return games.map(g => {
+    const isWon = g.result === 'won';
+    return `
+      <div class="history-row">
+        <span class="result-badge ${isWon ? 'badge-won':'badge-lost'}">${isWon?'Thắng':'Thua'}</span>
+        <span class="history-diff">${DIFF_SHORT[g.difficulty]}</span>
+        <span class="history-time">${isWon ? g.time_seconds+'s' : '—'}</span>
+        <span class="history-date">${new Date(g.created_at).toLocaleDateString('vi-VN')}</span>
+      </div>`;
+  }).join('');
+}
+
+function esc(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+createThemeToggle(document.getElementById("theme-btn-wrap"));
+loadAll();
+</script>
+</body>
+</html>
